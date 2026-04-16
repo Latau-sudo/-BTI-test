@@ -1,0 +1,2 @@
+# -BTI-test
+self test
