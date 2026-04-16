@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>钢铁雄心4 国策人格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .start-page {
+            text-align: center;
+            padding: 60px 40px;
+        }
+        .start-page h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .start-page p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .question-page {
+            padding: 40px;
+        }
+        .question {
+            margin-bottom: 30px;
+        }
+        .question h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4ecdc4;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+        .option.selected {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .progress {
+            margin-bottom: 20px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-page {
+            text-align: center;
+            padding: 40px;
+        }
+        .result-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .result-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+        .result-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .result-details {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            .start-page h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 开始页面 -->
+        <div id="start-page" class="page active start-page">
+            <h1>钢铁雄心4 国策人格测试</h1>
+            <p>通过20道战略抉择，揭示你在HOI4中的领袖人格类型。准备好指挥你的国家走向胜利了吗？</p>
+            <button class="btn" onclick="startTest()">开始测试</button>
+        </div>
+
+        <!-- 问题页面 -->
+        <div id="question-page" class="page question-page">
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div id="question-container">
+                <!-- 问题将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div id="result-page" class="page result-page">
+            <div class="result-card">
+                <h2 class="result-title" id="result-title"></h2>
+                <p class="result-description" id="result-description"></p>
+            </div>
+            <div class="result-details" id="result-details">
+                <!-- 详细结果将在这里显示 -->
+            </div>
+            <button class="btn" onclick="restartTest()">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "在战争爆发前，你更倾向于：",
+                options: [
+                    { text: "大规模动员军队，准备闪击战", type: "E" },
+                    { text: "加强工业基础，积蓄实力", type: "I" },
+                    { text: "观察国际形势，等待时机", type: "S" },
+                    { text: "制定长远战略规划", type: "N" }
+                ]
+            },
+            {
+                question: "面对邻国扩张，你会：",
+                options: [
+                    { text: "立即宣战，夺取领土", type: "E" },
+                    { text: "通过外交手段遏制", type: "I" },
+                    { text: "评估实际利益得失", type: "S" },
+                    { text: "考虑长期地缘政治影响", type: "N" }
+                ]
+            },
+            {
+                question: "在资源分配上，你优先：",
+                options: [
+                    { text: "军事工厂，生产坦克和飞机", type: "T" },
+                    { text: "民用工厂，提升稳定度和科研", type: "F" },
+                    { text: "海军舰队，控制海洋", type: "S" },
+                    { text: "空军部队，掌握制空权", type: "N" }
+                ]
+            },
+            {
+                question: "处理国内不满时，你选择：",
+                options: [
+                    { text: "镇压反对派，维持独裁", type: "T" },
+                    { text: "改革政策，提升人民支持", type: "F" },
+                    { text: "通过宣传和审查控制舆论", type: "J" },
+                    { text: "允许一定程度的自由表达", type: "P" }
+                ]
+            },
+            {
+                question: "在联盟选择上，你倾向：",
+                options: [
+                    { text: "加入轴心国，追求霸权", type: "E" },
+                    { text: "保持中立，独立发展", type: "I" },
+                    { text: "加入同盟国，维护秩序", type: "S" },
+                    { text: "加入共产国际，革命理想", type: "N" }
+                ]
+            },
+            {
+                question: "面对经济危机，你会：",
+                options: [
+                    { text: "增加税收，强制劳动", type: "T" },
+                    { text: "实施福利政策，安抚民众", type: "F" },
+                    { text: "调整贸易协定，寻求援助", type: "J" },
+                    { text: "创新经济模式，长期改革", type: "P" }
+                ]
+            },
+            {
+                question: "在科技研发上，你聚焦：",
+                options: [
+                    { text: "坦克和装甲部队技术", type: "S" },
+                    { text: "核武器和先进武器", type: "N" },
+                    { text: "步兵装备和后勤", type: "T" },
+                    { text: "医疗和民生科技", type: "F" }
+                ]
+            },
+            {
+                question: "处理间谍活动时，你：",
+                options: [
+                    { text: "反间谍机构严密监控", type: "J" },
+                    { text: "灵活应对，情报战", type: "P" },
+                    { text: "直接逮捕嫌疑人", type: "T" },
+                    { text: "通过外交渠道解决", type: "F" }
+                ]
+            },
+            {
+                question: "在殖民地政策上，你选择：",
+                options: [
+                    { text: "扩张领土，资源掠夺", type: "E" },
+                    { text: "和平共处，贸易往来", type: "I" },
+                    { text: "建立军事基地，战略控制", type: "S" },
+                    { text: "文化输出，意识形态传播", type: "N" }
+                ]
+            },
+            {
+                question: "面对核威慑，你的态度是：",
+                options: [
+                    { text: "率先研发，保持优势", type: "T" },
+                    { text: "呼吁裁军，和平共存", type: "F" },
+                    { text: "部署防御系统", type: "J" },
+                    { text: "探索太空军事化", type: "P" }
+                ]
+            },
+            {
+                question: "在军队指挥风格上，你是：",
+                options: [
+                    { text: "集中指挥，统一调度", type: "J" },
+                    { text: "灵活战术，因地制宜", type: "P" },
+                    { text: "重装甲部队，碾压式进攻", type: "S" },
+                    { text: "特种部队，精确打击", type: "N" }
+                ]
+            },
+            {
+                question: "处理政党关系时，你：",
+                options: [
+                    { text: "整合各派，建立统一战线", type: "T" },
+                    { text: "允许多元声音，民主协商", type: "F" },
+                    { text: "严格控制，防止分裂", type: "J" },
+                    { text: "鼓励竞争，促进创新", type: "P" }
+                ]
+            },
+            {
+                question: "在外交谈判中，你：",
+                options: [
+                    { text: "强硬立场，寸步不让", type: "T" },
+                    { text: "寻求共赢，妥协让步", type: "F" },
+                    { text: "基于事实，理性分析", type: "S" },
+                    { text: "展望未来，战略合作", type: "N" }
+                ]
+            },
+            {
+                question: "面对叛乱，你会：",
+                options: [
+                    { text: "武力镇压，快速平定", type: "T" },
+                    { text: "政治改革，化解矛盾", type: "F" },
+                    { text: "情报渗透，分化瓦解", type: "J" },
+                    { text: "等待时机，自然消退", type: "P" }
+                ]
+            },
+            {
+                question: "在海军建设上，你优先：",
+                options: [
+                    { text: "战列舰队，主力决战", type: "S" },
+                    { text: "潜艇部队，游击战", type: "N" },
+                    { text: "航空母舰，空中优势", type: "T" },
+                    { text: "运输舰队，后勤保障", type: "F" }
+                ]
+            },
+            {
+                question: "处理国际条约时，你：",
+                options: [
+                    { text: "遵守承诺，维护信誉", type: "J" },
+                    { text: "灵活解读，利益至上", type: "P" },
+                    { text: "基于实力，强权即真理", type: "T" },
+                    { text: "促进合作，共同发展", type: "F" }
+                ]
+            },
+            {
+                question: "在意识形态上，你相信：",
+                options: [
+                    { text: "国家至上，民族复兴", type: "T" },
+                    { text: "人民福祉，社会公平", type: "F" },
+                    { text: "传统秩序，稳定发展", type: "J" },
+                    { text: "创新变革，未来导向", type: "P" }
+                ]
+            },
+            {
+                question: "面对科技突破，你：",
+                options: [
+                    { text: "立即应用，军事化", type: "S" },
+                    { text: "评估影响，谨慎推进", type: "N" },
+                    { text: "优先民用，改善生活", type: "F" },
+                    { text: "控制扩散，战略优势", type: "T" }
+                ]
+            },
+            {
+                question: "在联盟内部，你扮演：",
+                options: [
+                    { text: "领导者，制定战略", type: "E" },
+                    { text: "协调者，促进合作", type: "I" },
+                    { text: "执行者，具体行动", type: "S" },
+                    { text: "智者，提供建议", type: "N" }
+                ]
+            },
+            {
+                question: "最终胜利的定义是：",
+                options: [
+                    { text: "征服世界，绝对霸权", type: "T" },
+                    { text: "和平繁荣，人民幸福", type: "F" },
+                    { text: "秩序稳定，国家安全", type: "J" },
+                    { text: "创新发展，人类进步", type: "P" }
+                ]
+            }
+        ];
+
+        const results = {
+            "ENTJ": {
+                title: "钢铁独裁者 - ENTJ",
+                description: "你就是那个在HOI4里一统天下的铁血领袖。你的焦点树是征服世界的宏大叙事，军队规模庞大，工厂全开军工。轴心国欢迎你，希特勒看了都得叫声老师。",
+                details: {
+                    "领袖风格": "独裁铁腕，决策果断，崇尚效率",
+                    "国策树": "征服与扩张，军事优先，资源掠夺",
+                    "阵营倾向": "轴心国 - 霸权主义，铁与血的哲学",
+                    "适合国家": "德国、意大利、日本 - 扩张型帝国",
+                    "理念口号": "Ein Volk, ein Reich, ein Führer! (一个民族，一个帝国，一个领袖！)"
+                }
+            },
+            "INTJ": {
+                title: "战略大师 - INTJ",
+                description: "你在HOI4里是那个算无遗策的智者。你的游戏风格是前期规划，后期爆发。科研点全砸在尖端科技上，海军空军双修。中立国？不存在的，你只是还没找到合适的盟友。",
+                details: {
+                    "领袖风格": "独立思考，长期规划，完美主义",
+                    "国策树": "科技领先，精密战略，隐忍待发",
+                    "阵营倾向": "中立 - 孤立主义，但实力强大时会选择加入",
+                    "适合国家": "瑞典、瑞士、芬兰 - 科技与防御并重",
+                    "理念口号": "知识就是力量，战略决定一切"
+                }
+            },
+            "ENTP": {
+                title: "革命煽动者 - ENTP",
+                description: "HOI4里的你就是那个共产革命的火种。你的焦点树充满意识形态斗争，民用工厂？不存在的，全民皆兵，红色洪流席卷全球。斯大林看了都得说：同志，你比我还激进。",
+                details: {
+                    "领袖风格": "创新变革，辩论高手，充满活力",
+                    "国策树": "革命与扩张，意识形态输出，人民战争",
+                    "阵营倾向": "共产国际 - 世界革命，阶级斗争",
+                    "适合国家": "苏联、中国 - 革命型大国",
+                    "理念口号": "全世界无产者，联合起来！"
+                }
+            },
+            "INTP": {
+                title: "科研狂人 - INTP",
+                description: "你在HOI4里是那个躲在实验室里的疯子科学家。你的国家科研点爆表，但军队？哦，那是什么。核弹一发，世界和平。爱因斯坦看了都得说：天才，你这理论太超前了。",
+                details: {
+                    "领袖风格": "逻辑分析，创新思维，独立研究",
+                    "国策树": "科技至上，核威慑，和平主义（被动）",
+                    "阵营倾向": "中立 - 科研孤立，但核弹一出谁敢惹",
+                    "适合国家": "美国（科研版）、英国 - 科技强国",
+                    "理念口号": "科学改变世界，知识就是武器"
+                }
+            },
+            "ENFJ": {
+                title: "民主斗士 - ENFJ",
+                description: "HOI4里的你就是那个带领人民走向光明的领袖。你的焦点树是民主与自由的赞歌，稳定度爆表，战争支持度拉满。同盟国需要你这样的灵魂人物。",
+                details: {
+                    "领袖风格": "鼓舞人心，团结协作，理想主义",
+                    "国策树": "民主改革，联盟建设，人民福祉",
+                    "阵营倾向": "同盟国 - 自由与民主的捍卫者",
+                    "适合国家": "美国、英国、法国 - 民主大国",
+                    "理念口号": "自由、平等、博爱！"
+                }
+            },
+            "INFJ": {
+                title: "神秘预言家 - INFJ",
+                description: "你在HOI4里是那个看透一切的智者。你的战略深不可测，外交手腕高超。中立但不被动，关键时刻一击致命。丘吉尔看了都得说：你这家伙，怎么总能料事如神。",
+                details: {
+                    "领袖风格": "洞察人心，战略远见，神秘主义",
+                    "国策树": "平衡发展，外交优先，隐形力量",
+                    "阵营倾向": "中立 - 智慧外交，适时加入",
+                    "适合国家": "瑞士、瑞典 - 外交与平衡高手",
+                    "理念口号": "智慧指引未来，和平带来繁荣"
+                }
+            },
+            "ENFP": {
+                title: "自由斗士 - ENFP",
+                description: "HOI4里的你就是那个四处点火的革命者。你的游戏充满惊喜，外交忽左忽右，军队忽聚忽散。但每次都能绝地反击，赢得胜利。甘地看了都得说：非暴力？不存在的。",
+                details: {
+                    "领袖风格": "热情洋溢，适应性强，充满创意",
+                    "国策树": "灵活战略，人民动员，革命火种",
+                    "阵营倾向": "共产国际或同盟国 - 视情况而定",
+                    "适合国家": "中国、印度 - 革命与自由并存",
+                    "理念口号": "自由万岁，人民当家！"
+                }
+            },
+            "INFP": {
+                title: "和平主义者 - INFP",
+                description: "你在HOI4里是那个坚持不发动战争的理想主义者。你的国家科研和民用爆表，但军队规模感人。直到被逼无奈，才爆发小宇宙。甘地看了都得说：你这才是真正的非暴力。",
+                details: {
+                    "领袖风格": "理想主义，和平主义，富有同情心",
+                    "国策树": "民用优先，科研领先，和平发展",
+                    "阵营倾向": "中立 - 绝对和平主义",
+                    "适合国家": "瑞士、爱尔兰 - 小国寡民，专注发展",
+                    "理念口号": "和平就是力量，理想永存"
+                }
+            },
+            "ESTJ": {
+                title: "秩序守护者 - ESTJ",
+                description: "HOI4里的你就是那个维护世界秩序的铁腕领袖。你的军队纪律严明，工厂高效运转。轴心国？同盟国？只要秩序，你都可以加入。",
+                details: {
+                    "领袖风格": "务实高效，纪律严明，传统主义",
+                    "国策树": "秩序维护，军事扩张，稳定发展",
+                    "阵营倾向": "同盟国或轴心国 - 秩序至上",
+                    "适合国家": "英国、德国 - 帝国主义大国",
+                    "理念口号": "秩序带来繁荣，纪律铸就胜利"
+                }
+            },
+            "ISTJ": {
+                title: "忠诚卫士 - ISTJ",
+                description: "你在HOI4里是那个默默守护国家的忠臣。你的战略保守但可靠，军队训练有素。不会主动扩张，但防守起来固若金汤。",
+                details: {
+                    "领袖风格": "可靠踏实，保守传统，忠诚奉献",
+                    "国策树": "防御优先，稳步发展，传统秩序",
+                    "阵营倾向": "同盟国 - 保守派卫士",
+                    "适合国家": "加拿大、澳大利亚 - 忠诚盟友",
+                    "理念口号": "忠诚就是力量，传统永存"
+                }
+            },
+            "ESFJ": {
+                title: "人民公仆 - ESFJ",
+                description: "HOI4里的你就是那个关心人民福祉的仁慈领袖。你的国家稳定度爆表，人民爱戴。但在战争中，你会为了人民而战。",
+                details: {
+                    "领袖风格": "关爱他人，社会和谐，务实帮助",
+                    "国策树": "民用建设，人民福祉，团结一致",
+                    "阵营倾向": "同盟国 - 人道主义卫士",
+                    "适合国家": "美国、法国 - 民主与福利并重",
+                    "理念口号": "人民至上，福祉第一"
+                }
+            },
+            "ISFJ": {
+                title: "守护天使 - ISFJ",
+                description: "你在HOI4里是那个默默奉献的守护者。你的国家和谐稳定，人民安居乐业。战争？只有在必要时才会拿起武器。",
+                details: {
+                    "领袖风格": "忠诚奉献，细心周到，传统价值观",
+                    "国策树": "和谐发展，人民守护，稳步前进",
+                    "阵营倾向": "同盟国 - 和平守护者",
+                    "适合国家": "加拿大、荷兰 - 小国守卫",
+                    "理念口号": "守护带来和平，奉献铸就未来"
+                }
+            },
+            "ESTP": {
+                title: "战场猛将 - ESTP",
+                description: "HOI4里的你就是那个冲锋陷阵的猛将。你的战术灵活多变，军队勇猛无比。闪击战？那是你的拿手好戏。",
+                details: {
+                    "领袖风格": "行动派，适应性强，勇于冒险",
+                    "国策树": "军事扩张，战术创新，快速胜利",
+                    "阵营倾向": "轴心国 - 军事冒险家",
+                    "适合国家": "德国、意大利 - 闪击战大师",
+                    "理念口号": "行动就是胜利，勇气铸就传奇"
+                }
+            },
+            "ISTP": {
+                title: "技术专家 - ISTP",
+                description: "你在HOI4里是那个精通各种武器的技术狂人。你的军队装备精良，战术精准。但你不喜欢大规模动员。",
+                details: {
+                    "领袖风格": "技术精湛，独立行动，实用主义",
+                    "国策树": "技术领先，精准打击，小规模精英",
+                    "阵营倾向": "中立 - 技术孤立主义",
+                    "适合国家": "芬兰、瑞士 - 技术强国",
+                    "理念口号": "技术决定一切，精准带来胜利"
+                }
+            },
+            "ESFP": {
+                title: "娱乐大师 - ESFP",
+                description: "HOI4里的你就是那个让人民快乐的领袖。你的国家充满活力，人民支持度爆表。但在战场上，你也能带来惊喜。",
+                details: {
+                    "领袖风格": "热情开朗，享受当下，社交高手",
+                    "国策树": "人民娱乐，灵活应变，活力四射",
+                    "阵营倾向": "同盟国 - 活力卫士",
+                    "适合国家": "美国、澳大利亚 - 娱乐大国",
+                    "理念口号": "快乐带来力量，活力铸就未来"
+                }
+            },
+            "ISFP": {
+                title: "艺术之魂 - ISFP",
+                description: "你在HOI4里是那个追求美的领袖。你的国家文化繁荣，但军事？那是破坏美的东西。直到被迫，你才会拿起武器。",
+                details: {
+                    "领袖风格": "艺术气质，和平主义，个性自由",
+                    "国策树": "文化繁荣，和平发展，艺术守护",
+                    "阵营倾向": "中立 - 艺术和平主义",
+                    "适合国家": "瑞士、奥地利 - 文化小国",
+                    "理念口号": "美就是力量，和平带来艺术"
+                }
+            }
+        };
+
+        let currentQuestion = 0;
+        let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        function startTest() {
+            document.getElementById('start-page').classList.remove('active');
+            document.getElementById('question-page').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const container = document.getElementById('question-container');
+            container.innerHTML = `
+                <div class="question">
+                    <h2>${question.question}</h2>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option" onclick="selectOption('${option.type}', ${index})">${option.text}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            updateProgress();
+        }
+
+        function selectOption(type, index) {
+            scores[type]++;
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestion / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+        }
+
+        function showResult() {
+            document.getElementById('question-page').classList.remove('active');
+            document.getElementById('result-page').classList.add('active');
+
+            const type = calculateType();
+            const result = results[type];
+
+            document.getElementById('result-title').textContent = result.title;
+            document.getElementById('result-description').textContent = result.description;
+
+            const detailsContainer = document.getElementById('result-details');
+            detailsContainer.innerHTML = Object.entries(result.details).map(([key, value]) => `
+                <div class="detail-item">
+                    <span class="detail-label">${key}:</span> ${value}
+                </div>
+            `).join('');
+        }
+
+        function calculateType() {
+            const ei = scores.E > scores.I ? 'E' : 'I';
+            const sn = scores.S > scores.N ? 'S' : 'N';
+            const tf = scores.T > scores.F ? 'T' : 'F';
+            const jp = scores.J > scores.P ? 'J' : 'P';
+            return ei + sn + tf + jp;
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            document.getElementById('result-page').classList.remove('active');
+            document.getElementById('start-page').classList.add('active');
+        }
+    </script>
+</body>
+</html>
